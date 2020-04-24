@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <title>Item Manager</title>
+  </head>
+  <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <a class="navbar-brand" href="/ItemManager/">AddItem</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/ItemManager/">Home <span class="sr-only">(current)</span></a>
+          </li>
+
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search">
+          <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+
+      <div class="container">
+          <h1>Add New Item</h1>
+          <form id="itemForm">
+                <div class="form-group">
+                  <label>Text</label>
+                  <input type="text" id="text" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>Body</label>
+                  <textarea  id="body" class="form-control"></textarea>
+                </div>
+                <input type="submit"  value="submit" class="btn btn-primary">
+          </form>
+          <hr>
+          <ul class="list-group" id="items">
+
+          </ul>
+
+      </div>
+
+
+      <script
+        src="https://code.jquery.com/jquery-1.12.4.js"
+        integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+        crossorigin="anonymous"></script>
+
+
+
+    <script
+      src="https://code.jquery.com/jquery-1.12.4.js"
+      integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU="
+      crossorigin="anonymous"></script>
+
+      <script type="text/javascript">
+        $(document).ready(function(){
+
+            //call function
+            getItems();
+
+            // submit event (Form)
+            $('#itemForm').on('submit',function(e){
+
+              e.preventDefault();
+
+              let text = $('#text').val();s
+              let body = $('#body').val();
+
+              addItem(text,body);
+
+            });
+
+            //delete event
+            $('body').on('click','.deleteLink',function(e){
+              e.preventDefault();
+              //console.log('Dele');
+
+              let id=$(this).data('id');
+              //console.log(id);
+              deleteItem(id);
+            });
+            //delete items
+            function deleteItem(id){
+              $.ajax({
+                method:'POST',
+                url:'http://localhost:8000/api/items/'+id,
+                data: { _method: 'DELETE' },
+              }).done(function(item){
+                alert('item #'+id+'deleted');
+                location.reload();
+              });
+            }
+            //insert item usig API
+           function addItem(text,body){
+              $.ajax({
+                method:'POST',
+                url: 'http://localhost:8000/api/items',
+                data: {text: text , body: body},
+              }).done(function(item){
+                alert('Item #'+item.id+' added');
+                location.reload();
+              });
+            }
+
+            //get items from API
+            function getItems()
+            {
+              $.ajax({
+                  url:'http://localhost:8000/api/items'
+
+              }).done(function(items){
+                //  console.log(items)
+                let output=''; //inital value
+                $.each(items, function(key,item){
+                  //concatnet all iterasion of loop on output variable
+                  output +=`
+                        <li class ="list-group-item">
+                            <strong>${item.text}:</strong>${item.body} <a href="#" class="deleteLink" data-id="${item.id}">Delete</a>
+                          </li>
+                    `;
+
+              });
+              //to pass <li> of output variable to <ul>
+              $('#items').append(output);
+              });
+            }
+        });
+      </script>
+  </body>
+</html>
